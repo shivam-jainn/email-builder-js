@@ -25,9 +25,6 @@ export default function App() {
 
   return (
     <>
-      <InspectorDrawer />
-      <SamplesDrawer />
-
       <Stack
         sx={{
           marginRight: inspectorDrawerOpen ? `${INSPECTOR_DRAWER_WIDTH}px` : 0,
@@ -35,6 +32,9 @@ export default function App() {
           transition: [marginLeftTransition, marginRightTransition].join(', '),
         }}
       >
+      <InspectorDrawer />
+      <SamplesDrawer />
+
         <TemplatePanel />
       </Stack>
     </>
