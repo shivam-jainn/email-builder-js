@@ -1,31 +1,64 @@
 import { create } from 'zustand';
 
-import getConfiguration from '../../getConfiguration';
+import getConfiguration, { initGetConfig, asyncGetDocument } from '../../getConfiguration';
 
 import { TEditorConfiguration } from './core';
 
+import EMPTY_EMAIL_MESSAGE from '../../getConfiguration/sample/empty-email-message';
+
+// Define the TValue type
 type TValue = {
   document: TEditorConfiguration;
-
   selectedBlockId: string | null;
   selectedSidebarTab: 'block-configuration' | 'styles';
   selectedMainTab: 'editor' | 'preview' | 'json' | 'html';
   selectedScreenSize: 'desktop' | 'mobile';
-
   inspectorDrawerOpen: boolean;
   samplesDrawerOpen: boolean;
 };
 
-const editorStateStore = create<TValue>(() => ({
-  document: getConfiguration(window.location.hash),
-  selectedBlockId: null,
-  selectedSidebarTab: 'styles',
-  selectedMainTab: 'editor',
-  selectedScreenSize: 'desktop',
+// Function to choose the configuration based on the hash
+async function chooseConfig(href: string): Promise<TEditorConfiguration> {
+  if (href.startsWith('#sample/')) {
+    return getConfiguration(href);
+  }
 
-  inspectorDrawerOpen: true,
-  samplesDrawerOpen: true,
-}));
+  if (href.startsWith('#template/')) {
+    const result = await asyncGetDocument(href);
+    return result;
+  }
+
+  return initGetConfig(href);
+}
+
+// Initialize the configuration
+const initConfigMake = async (): Promise<TValue> => {
+  const document = await chooseConfig(window.location.hash);
+  return {
+    document,
+    selectedBlockId: null,
+    selectedSidebarTab: 'styles',
+    selectedMainTab: 'editor',
+    selectedScreenSize: 'desktop',
+    inspectorDrawerOpen: true,
+    samplesDrawerOpen: true,
+  };
+};
+
+// Zustand store
+const editorStateStore = create<TValue>((set) => {
+  initConfigMake().then((config) => set(config));
+
+  return {
+    document: EMPTY_EMAIL_MESSAGE,
+    selectedBlockId: null,
+    selectedSidebarTab: 'styles',
+    selectedMainTab: 'editor',
+    selectedScreenSize: 'desktop',
+    inspectorDrawerOpen: true,
+    samplesDrawerOpen: true,
+  };
+});
 
 export function useDocument() {
   return editorStateStore((s) => s.document);

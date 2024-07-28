@@ -85,6 +85,7 @@ export default function TemplatePanel() {
           zIndex: 'appBar',
           px: 1,
         }}
+        style={{ position: 'relative'}}
         direction="row"
         justifyContent="space-between"
         alignItems="center"

@@ -9,8 +9,21 @@ import logo from './waypoint.svg';
 
 export const SAMPLES_DRAWER_WIDTH = 240;
 
+interface Template{
+  name: string;
+}
+
 export default function SamplesDrawer() {
   const samplesDrawerOpen = useSamplesDrawerOpen();
+  const [templates, setTemplates] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('http://localhost:3010/templates/list/nocode')
+      .then((res) => res.json())
+      .then((data) => {
+        setTemplates(data);
+      });
+  }, []);
 
   return (
     <Drawer
@@ -37,6 +50,12 @@ export default function SamplesDrawer() {
             <SidebarButton href="#sample/reservation-reminder">Reservation reminder</SidebarButton>
             <SidebarButton href="#sample/post-metrics-report">Post metrics</SidebarButton>
             <SidebarButton href="#sample/respond-to-message">Respond to inquiry</SidebarButton>
+         
+            {
+              templates.map((template:Template,index:number) => (
+                <SidebarButton key={index} href={`#template/${template.name}`}>{template.name}</SidebarButton>
+              ))
+            }
           </Stack>
 
           <Divider />

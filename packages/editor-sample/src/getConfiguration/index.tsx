@@ -8,6 +8,10 @@ import RESPOND_TO_MESSAGE from './sample/respond-to-message';
 import SUBSCRIPTION_RECEIPT from './sample/subscription-receipt';
 import WELCOME from './sample/welcome';
 
+export function initGetConfig(template:string){
+  return EMPTY_EMAIL_MESSAGE
+}
+
 export default function getConfiguration(template: string) {
   if (template.startsWith('#sample/')) {
     const sampleName = template.replace('#sample/', '');
@@ -31,15 +35,36 @@ export default function getConfiguration(template: string) {
     }
   }
 
+
+
   if (template.startsWith('#code/')) {
     const encodedString = template.replace('#code/', '');
     const configurationString = decodeURIComponent(atob(encodedString));
     try {
       return JSON.parse(configurationString);
     } catch {
-      console.error(`Couldn't load configuration from hash.`);
+      console.error("Couldn't load configuration from hash.");
     }
   }
 
   return EMPTY_EMAIL_MESSAGE;
+}
+
+
+export async function asyncGetDocument(template: string) {
+  console.log('template', template);
+
+  if (template.startsWith('#template/')) {
+    const encodedString = template.replace('#template/', '');
+    console.log('#template/',encodedString);
+    try {
+      const response = await fetch(`http://localhost:3010/templates/download/nocode/${encodedString}.json`);
+      const jsonData =  await response.json();
+      console.log(jsonData);
+      return jsonData;
+    } catch (error) {
+      console.error("Couldn't load configuration from hash.");
+      return EMPTY_EMAIL_MESSAGE;
+    }
+  }
 }
